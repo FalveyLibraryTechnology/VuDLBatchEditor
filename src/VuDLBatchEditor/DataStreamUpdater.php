@@ -4,7 +4,7 @@ namespace VuDLBatchEditor;
 class DataStreamUpdater
 {
     protected $solrUrl;
-    protected $solrRowLimit = 10;    // how many rows to retrieve from Solr
+    protected $solrRowLimit = 100000;    // how many rows to retrieve from Solr
     protected $fedoraUrl;
 
     public function __construct($solrUrl, $fedoraUrl)
