@@ -57,15 +57,25 @@ class DataStreamUpdater
     protected $fedoraUrl;
 
     /**
+     * Options set by user.
+     *
+     * @var array
+     */
+    protected $options;
+
+    /**
      * Constructor
      *
      * @param string $solrUrl   Base URL for Solr.
      * @param string $fedoraUrl Base URL for Fedora.
+     * @param array  $options   Options; supported: test-only (bool), to try the
+     * transformation without actually writing data to Fedora.
      */
-    public function __construct($solrUrl, $fedoraUrl)
+    public function __construct($solrUrl, $fedoraUrl, $options = [])
     {
         $this->solrUrl = $solrUrl;
         $this->fedoraUrl = $fedoraUrl;
+        $this->options = $options;
     }
 
     /**
@@ -168,7 +178,12 @@ class DataStreamUpdater
         foreach ($ids as $id) {
             $streamContents = $this->getStream($id, $dataStream);
             $transformedContents = $editCallback($id, $streamContents);
-            $this->setStream($id, $dataStream, $transformedContents);
+            if (isset($this->options['test-only']) && $this->options['test-only']) {
+                echo "---DEBUG OUTPUT FOR ID $id---\n";
+                print_r($transformedContents);
+            } else {
+                $this->setStream($id, $dataStream, $transformedContents);
+            }
         }
     }
 
