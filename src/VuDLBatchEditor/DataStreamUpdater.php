@@ -88,8 +88,10 @@ class DataStreamUpdater
      */
     protected function getIdsFromSolr($query)
     {
-        $url = $this->solrUrl . '?q=' . urlencode($query) . '&fl=id&rows='
-            . $this->solrRowLimit . '&wt=json';
+        $idField = isset($this->options['idField'])
+            ? $this->options['idField'] : 'id';
+        $url = $this->solrUrl . '?q=' . urlencode($query) . '&fl='
+            . urlencode($idField) . '&rows=' . $this->solrRowLimit . '&wt=json';
         $json = file_get_contents($url);
         $data = json_decode($json);
         if (!isset($data->response->docs)) {
@@ -100,7 +102,10 @@ class DataStreamUpdater
                 'Too many records; restrict query or raise row limit'
             );
         }
-        return array_map(function ($i) { return $i->id; }, $data->response->docs);
+        return array_map(
+            function ($i) use ($idField) { return $i->{$idField}; },
+            $data->response->docs
+        );
     }
 
     /**
